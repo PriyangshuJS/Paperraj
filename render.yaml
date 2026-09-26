@@ -8,7 +8,7 @@ services:
   - type: web
     name: paperraj
     runtime: node
-    plan: starter
+    plan: free
     region: oregon
     branch: main
     autoDeploy: true

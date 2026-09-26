@@ -13,7 +13,7 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="mb-6 grid gap-3">
+    <header className="paperraj-page-header mb-6 grid gap-3">
       {eyebrow && (
         <p className="smallcaps text-[0.74rem] font-bold text-wood-2">{eyebrow}</p>
       )}

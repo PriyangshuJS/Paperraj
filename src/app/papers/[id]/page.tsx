@@ -102,7 +102,7 @@ export default async function PaperDetailPage({ params }: { params: Params }) {
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="paperraj-detail grid gap-6">
       <nav aria-label="Breadcrumb" className="text-[0.8rem] text-ink-3">
         <ol className="flex flex-wrap items-center gap-1.5">
           <li>
@@ -122,8 +122,8 @@ export default async function PaperDetailPage({ params }: { params: Params }) {
       </nav>
 
       <article className="grid gap-5">
-        <header className="paper paper-lined p-4 sm:p-6">
-          <div className="flex flex-wrap items-start justify-between gap-3">
+        <header className="paperraj-detail-header paper paper-lined p-4 sm:p-6">
+          <div className="paper-detail-head flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
               <h1 className="break-words font-display text-[1.6rem] font-semibold leading-tight text-ink sm:text-[2rem]">
                 {paper.fileName}
@@ -165,7 +165,7 @@ export default async function PaperDetailPage({ params }: { params: Params }) {
             </p>
           )}
 
-          <div className="mt-5 flex flex-wrap items-center gap-2">
+          <div className="paper-detail-actions mt-5 flex flex-wrap items-center gap-2">
             <a href={`/api/papers/${paper.id}/download`} className="btn btn-primary">
               ⬇ Download · {formatBytes(paper.fileSize)}
             </a>
@@ -182,7 +182,7 @@ export default async function PaperDetailPage({ params }: { params: Params }) {
           </div>
         </header>
 
-        <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
+        <div className="paper-detail-layout grid gap-5 lg:grid-cols-[1.6fr_1fr]">
           <div className="grid gap-5">
             <PaperViewer
               paperId={paper.id}

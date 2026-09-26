@@ -72,7 +72,7 @@ export function MyUploadsList({ ownerView = false }: { ownerView?: boolean }) {
   }
 
   return (
-    <ul className="grid gap-3">
+    <ul className="paperraj-my-uploads grid gap-3">
       {items.map((paper) => (
         <li key={paper.id} className="paper row-hover p-4 sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-5">

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Logo, LogoWordmark } from "@/components/Logo";
 import { NAV_LINKS, SITE } from "@/lib/site";
 import { useSession, type SessionUser } from "@/lib/useSession";
 
@@ -27,7 +26,7 @@ export function SiteHeader() {
   }, []);
 
   return (
-    <header className="relative z-40 border-b border-[var(--edge-strong)] bg-[rgba(242,233,216,0.92)] backdrop-blur-[2px]">
+    <header className="paperraj-header relative z-40 border-b border-[var(--edge-strong)] bg-[rgba(242,233,216,0.92)] backdrop-blur-[2px]">
       {/* carved wooden rail */}
       <div
         aria-hidden
@@ -38,15 +37,15 @@ export function SiteHeader() {
         }}
       />
       <div className="mx-auto w-full max-w-[1180px] px-4 sm:px-6">
-        <div className="flex items-center gap-3 py-3 sm:gap-5 sm:py-4">
+        <div className="site-header-row flex items-center gap-3 py-3 sm:gap-5 sm:py-4">
           <Link
             href="/"
-            className="flex shrink-0 items-center gap-3 rounded-sm"
+            className="flex min-w-0 shrink-0 items-center rounded-sm"
             aria-label="PaperRaj home"
           >
-            <Logo size={46} className="drop-shadow-[0_2px_4px_rgba(60,42,24,0.35)] sm:hidden" />
-            <Logo size={58} className="hidden drop-shadow-[0_2px_6px_rgba(60,42,24,0.35)] sm:block" />
-            <LogoWordmark />
+            <span className="font-display text-[1.45rem] font-semibold tracking-[-0.02em] text-ink sm:text-[1.7rem]">
+              Paper<span className="text-wood-2">Raj</span>
+            </span>
           </Link>
 
           <p className="hidden min-w-0 flex-1 border-l border-[var(--edge-strong)] pl-4 text-[0.82rem] leading-snug text-ink-2 lg:block">
@@ -56,8 +55,8 @@ export function SiteHeader() {
             <span className="line-clamp-2 opacity-80">{SITE.description}</span>
           </p>
 
-          <div className="ml-auto flex items-center gap-2">
-            <Link href="/upload" className="btn btn-primary btn-sm sm:!min-h-[44px] sm:!px-4">
+          <div className="site-header-actions ml-auto flex items-center gap-2">
+            <Link href="/upload" className="btn btn-primary btn-sm !min-h-[40px] !px-3 sm:!min-h-[44px] sm:!px-4">
               <span aria-hidden>📤</span>
               <span className="hidden sm:inline">Upload a paper</span>
               <span className="sm:hidden">Upload</span>
@@ -80,7 +79,7 @@ export function SiteHeader() {
 
             <button
               type="button"
-              className="btn btn-ghost !px-3"
+              className="site-menu-button btn btn-ghost !px-3"
               aria-expanded={open}
               aria-controls="paperraj-menu"
               aria-label={open ? "Close menu" : "Open menu"}
@@ -121,9 +120,9 @@ export function SiteHeader() {
       <div
         id="paperraj-menu"
         hidden={!open}
-        className="border-t border-[var(--edge-strong)] bg-[rgba(253,249,240,0.98)] md:hidden"
+        className="paperraj-mobile-drawer border-t border-[var(--edge-strong)] bg-[rgba(253,249,240,0.98)] md:hidden"
       >
-        <nav aria-label="Menu" className="mx-auto grid w-full max-w-[1180px] gap-0.5 px-4 py-3">
+        <nav aria-label="Menu" className="site-mobile-nav mx-auto grid w-full max-w-[1180px] gap-0.5 px-4 py-3">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}

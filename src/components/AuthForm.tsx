@@ -104,7 +104,7 @@ export function AuthForm({ mode, next, token }: { mode: Mode; next?: string; tok
   }
 
   return (
-    <div className="mx-auto w-full max-w-md">
+    <div className="paperraj-auth mx-auto w-full max-w-md">
       <div className="paper paper-lined p-5 sm:p-6">
         <h1 className="font-display text-[1.9rem] font-semibold text-ink">{copy.title}</h1>
         <p className="mt-2 font-serif-papr text-[0.95rem] leading-relaxed text-ink-2">

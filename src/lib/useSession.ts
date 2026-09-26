@@ -45,8 +45,8 @@ export function refreshSession(): Promise<SessionUser | null> {
 }
 
 export function useSession() {
-  const [user, setUser] = useState<SessionUser | null>(cached);
-  const [loading, setLoading] = useState(cached === null);
+  const [user, setUser] = useState<SessionUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const listener = (next: SessionUser | null) => {
@@ -55,10 +55,15 @@ export function useSession() {
     };
     listeners.add(listener);
     const fresh = Date.now() - cacheTimestamp < TTL;
-    if (!fresh) {
-      void refreshSession().then(() => setLoading(false));
-    } else {
+
+    if (fresh) {
+      setUser(cached);
       setLoading(false);
+    } else {
+      void refreshSession().then((next) => {
+        setUser(next);
+        setLoading(false);
+      });
     }
     return () => {
       listeners.delete(listener);

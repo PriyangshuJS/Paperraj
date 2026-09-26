@@ -1,0 +1,59 @@
+# PaperRaj on Render — https://render.com/docs/blueprint-spec
+#
+# Deploy with: Render dashboard → New → Blueprint → select the GitHub repo.
+# This blueprint creates the web service and wires the environment variables.
+# Secrets marked `sync: false` must be pasted in once in the Render dashboard.
+
+services:
+  - type: web
+    name: paperraj
+    runtime: node
+    plan: starter
+    region: oregon
+    branch: main
+    autoDeploy: true
+
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+
+    healthCheckPath: /api/health
+
+    envVars:
+      # ---- required ------------------------------------------------------
+      - key: DATABASE_URL
+        sync: false # paste the Supabase connection string (see README step 7)
+
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false # e.g. https://paperraj.onrender.com
+
+      # ---- Supabase credentials (server-side only) -----------------------
+      - key: SUPABASE_URL
+        sync: false # e.g. https://abcdefgh.supabase.co
+
+      - key: SUPABASE_ANON_KEY
+        sync: false # Project Settings → API → anon public
+
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false # Project Settings → API → service_role (SECRET — never in git)
+
+      - key: SUPABASE_STORAGE_BUCKET
+        value: paperraj-papers
+
+      # ---- administration -------------------------------------------------
+      - key: ADMIN_EMAIL
+        sync: false # the account that becomes the librarian
+
+      # ---- optional branding ---------------------------------------------
+      - key: PUBLIC_OWNER_EMAIL
+        sync: false
+      - key: PUBLIC_YOUTUBE_URL
+        sync: false
+      - key: PUBLIC_OWNER_NAME
+        sync: false
+
+      # ---- tunables -------------------------------------------------------
+      - key: MAX_UPLOAD_MB
+        value: "50"
+
+      - key: NODE_VERSION
+        value: "22.11.0"

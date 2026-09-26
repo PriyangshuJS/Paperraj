@@ -15,7 +15,9 @@ export function PaperViewer({
   fileName: string;
   fileSize: string;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() =>
+    typeof window !== "undefined" && window.location.hash === "#paper-reader"
+  );
   const [failed, setFailed] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);

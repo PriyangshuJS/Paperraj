@@ -464,14 +464,12 @@ export function PaperRow({ paper }: { paper: PaperListItem }) {
           <Link href={`/papers/${paper.id}`} className="btn btn-sm flex-1 sm:flex-none">
             Details
           </Link>
-          <a
-            href={`/api/papers/${paper.id}/view`}
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            href={`/papers/${paper.id}#paper-reader`}
             className="btn btn-sm flex-1 sm:flex-none"
           >
             View
-          </a>
+          </Link>
           <a href={`/api/papers/${paper.id}/download`} className="btn btn-primary btn-sm flex-1 sm:flex-none">
             Download
           </a>

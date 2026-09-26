@@ -56,7 +56,7 @@ export function CommentsPanel({ paperId }: { paperId: string }) {
   }
 
   return (
-    <section aria-label="Comments" className="paper p-4 sm:p-5">
+    <section aria-label="Comments" className="paperraj-comments paper p-4 sm:p-5">
       <h2 className="font-display text-[1.35rem] text-ink">Reader&apos;s margin</h2>
       <p className="mt-1 text-[0.85rem] text-ink-3">
         Questions, corrections and clarifications about this paper. Anyone can read; signing in

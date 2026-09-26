@@ -178,7 +178,7 @@ export function UploadForm({
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1.5fr_1fr]">
+    <div className="paperraj-upload grid gap-5 lg:grid-cols-[1.5fr_1fr]">
       <div className="grid gap-5">
         <section className="paper paper-lined p-4 sm:p-5" aria-labelledby="upload-file-title">
           <h2 id="upload-file-title" className="font-display text-[1.35rem] text-ink">
@@ -192,7 +192,7 @@ export function UploadForm({
             role="button"
             tabIndex={0}
             aria-describedby="upload-file-help"
-            className={`mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-sm border-2 border-dashed px-4 py-9 text-center transition-colors ${
+            className={`paperraj-dropzone mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-sm border-2 border-dashed px-4 py-9 text-center transition-colors ${
               dragging
                 ? "border-accent bg-[rgba(53,86,122,0.06)]"
                 : "border-[var(--edge-strong)] bg-[rgba(255,253,247,0.6)] hover:border-wood-2"

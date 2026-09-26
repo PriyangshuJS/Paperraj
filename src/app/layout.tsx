@@ -44,10 +44,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/paperraj-icon.png", type: "image/svg+xml" },
+      { url: "/paperraj-icon.png", sizes: "192x192", type: "image/png" },
     ],
-    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+    apple: [{ url: "/paperraj-icon.png", sizes: "180x180" }],
   },
   appleWebApp: {
     capable: true,
@@ -89,7 +89,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Skip to content
         </a>
         <SiteHeader />
-        <main id="main" className="mx-auto w-full max-w-[1180px] px-4 pb-4 pt-6 sm:px-6 sm:pt-8">
+        <main id="main" className="paperraj-main mx-auto w-full max-w-[1180px] px-4 pb-4 pt-6 sm:px-6 sm:pt-8">
           {children}
         </main>
         <SiteFooter />

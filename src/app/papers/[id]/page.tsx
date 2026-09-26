@@ -169,14 +169,6 @@ export default async function PaperDetailPage({ params }: { params: Params }) {
             <a href={`/api/papers/${paper.id}/download`} className="btn btn-primary">
               ⬇ Download · {formatBytes(paper.fileSize)}
             </a>
-            <a
-              href={`/api/papers/${paper.id}/view`}
-              target="_blank"
-              rel="noreferrer"
-              className="btn"
-            >
-              👁️ View
-            </a>
             <ReportDialog paperId={paper.id} />
           </div>
 

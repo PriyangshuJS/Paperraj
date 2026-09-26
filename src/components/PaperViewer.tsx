@@ -97,7 +97,7 @@ export function PaperViewer({
   if (!open) {
     return (
       <button type="button" className="btn w-full" onClick={() => setOpen(true)}>
-        👁️ Open the paper in the reader ({fileSize})
+        👁️ View ({fileSize})
       </button>
     );
   }

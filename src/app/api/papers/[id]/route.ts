@@ -1,6 +1,6 @@
 import { and, eq, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { auditLogs, papers } from "@/db/schema";
+import { auditLogs, paperPages, papers } from "@/db/schema";
 import { fail, handleError, ok } from "@/lib/api";
 import { getCurrentUser } from "@/lib/auth";
 import { getPaperById } from "@/lib/papers";
@@ -129,6 +129,13 @@ export async function PATCH(request: Request, { params }: Ctx) {
     if (raw.paperType !== undefined) updates.paperType = metadata.paperType;
     if (raw.description !== undefined) updates.description = metadata.description;
 
+    if (replacement && paper.fileExt.toLowerCase() === "images") {
+      return fail(
+        "Multi-page image papers cannot have their file replaced from the edit screen yet. Edit the paper details instead.",
+        400,
+      );
+    }
+
     if (replacement) {
       const verdict = validateFile(
         { name: newFileName === paper.fileName ? paper.fileName : newFileName, size: replacement.buffer.byteLength },
@@ -181,7 +188,25 @@ export async function DELETE(_request: Request, { params }: Ctx) {
         403,
       );
     }
-    await deleteObject(paper.id, paper.storagePath);
+    // Multi-page image papers have one storage object per page.
+    // Remove every page object before deleting the catalogue row.
+    const pages = await db
+      .select({
+        storagePath: paperPages.storagePath,
+      })
+      .from(paperPages)
+      .where(eq(paperPages.paperId, paper.id));
+
+    for (const page of pages) {
+      await deleteObject(paper.id, page.storagePath);
+    }
+
+    // Delete the original/single-file object as well. For multi-page papers
+    // this is harmless if the primary path is not separately present.
+    if (pages.length === 0) {
+      await deleteObject(paper.id, paper.storagePath);
+    }
+
     await db.delete(papers).where(eq(papers.id, paper.id));
     await db
       .insert(auditLogs)

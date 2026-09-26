@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { sql } from "drizzle-orm";
 import { db } from "@/db";
-import { auditLogs, papers } from "@/db/schema";
+import { auditLogs, paperPages, papers } from "@/db/schema";
 import { fail, handleError, ok, str } from "@/lib/api";
 import { getCurrentUser } from "@/lib/auth";
 import { listPapers } from "@/lib/papers";
@@ -42,7 +42,8 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   let paperId: string | null = null;
-  let storagePath: string | null = null;
+  const uploadedStoragePaths: string[] = [];
+
   try {
     const user = await getCurrentUser();
     const settings = await getSettings();
@@ -54,22 +55,82 @@ export async function POST(request: Request) {
       return fail("The upload could not be read. Please try again.", 400);
     }
 
-    const file = form.get("file");
-    if (!(file instanceof File)) return fail("Please choose a file to upload.", 400);
+    const uploadedFiles = form.getAll("files");
+    const legacyFile = form.get("file");
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const verdict = validateFile(file, buffer, settings.maxUploadMb);
-    if (!verdict.ok) return fail(verdict.error, 415);
+    const files = uploadedFiles.length > 0
+      ? uploadedFiles.filter((value): value is File => value instanceof File)
+      : legacyFile instanceof File
+        ? [legacyFile]
+        : [];
 
-    const fileName = verdict.name;
+    if (files.length === 0) {
+      return fail("Please choose a file to upload.", 400);
+    }
 
-    // Duplicate filename protection — enforced in the application layer *and* by
-    // a unique index in the database.
+    if (files.length > 10) {
+      return fail("You can upload a maximum of 10 files at a time.", 400);
+    }
+
+    const hasPdf = files.some(
+      (file) => file.name.split(".").pop()?.toLowerCase() === "pdf",
+    );
+
+    if (hasPdf && files.length > 1) {
+      return fail(
+        "A PDF must be uploaded by itself. For multiple pages, upload images.",
+        400,
+      );
+    }
+
+    const validatedFiles: Array<{
+      file: File;
+      buffer: Buffer;
+      name: string;
+      size: number;
+      ext: string;
+      mime: string;
+    }> = [];
+
+    for (const file of files) {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const verdict = validateFile(file, buffer, settings.maxUploadMb);
+
+      if (!verdict.ok) {
+        return fail(`${file.name}: ${verdict.error}`, 415);
+      }
+
+      validatedFiles.push({
+        file,
+        buffer,
+        name: verdict.name,
+        size: verdict.size,
+        ext: verdict.ext,
+        mime: verdict.mime,
+      });
+    }
+
+    const totalSize = validatedFiles.reduce((sum, item) => sum + item.size, 0);
+
+    /*
+     * The main papers row represents the whole submission.
+     * For image submissions, individual pages are stored in paper_pages.
+     * For PDFs, the existing single-file storage path is retained.
+     */
+    const primary = validatedFiles[0];
+    if (!primary) throw new Error("No validated files.");
+
+    const fileName =
+      validatedFiles.length === 1
+        ? primary.name
+        : `${primary.name.replace(/\.[^.]+$/, "")}-pages-${validatedFiles.length}`;
+
     const clash = await db
       .select({ id: papers.id })
       .from(papers)
       .where(sql`lower(${papers.fileName}) = lower(${fileName})`)
       .limit(1);
+
     if (clash.length > 0) {
       return fail("A file with this name already exists.", 409);
     }
@@ -94,7 +155,12 @@ export async function POST(request: Request) {
     }
 
     paperId = randomUUID();
-    storagePath = `papers/${paperId}/${fileName.replace(/"/g, "")}`;
+
+    const isMultiPage = validatedFiles.length > 1;
+
+    const storagePath = isMultiPage
+      ? `papers/${paperId}/pages/1/${primary.name.replace(/"/g, "")}`
+      : `papers/${paperId}/${primary.name.replace(/"/g, "")}`;
 
     const inserted = await db
       .insert(papers)
@@ -111,12 +177,11 @@ export async function POST(request: Request) {
         school: metadata.school,
         paperType: metadata.paperType,
         description: metadata.description,
-        fileSize: verdict.size,
-        fileExt: verdict.ext,
-        mimeType: verdict.mime,
+        fileSize: totalSize,
+        fileExt: isMultiPage ? "images" : primary.ext,
+        mimeType: isMultiPage ? "application/x-paperraj-pages" : primary.mime,
         storageBucket: STORAGE_BUCKET,
         storagePath,
-        // Uploads made by the administrator are trusted immediately.
         status:
           settings.autoApproval || user?.role === "admin" ? "APPROVED" : "PENDING",
       })
@@ -125,7 +190,32 @@ export async function POST(request: Request) {
     const paper = inserted[0];
     if (!paper) throw new Error("Insert returned no row.");
 
-    await putObject(paperId, storagePath, buffer, verdict.mime);
+    if (isMultiPage) {
+      for (let index = 0; index < validatedFiles.length; index++) {
+        const page = validatedFiles[index];
+        if (!page) continue;
+
+        const pageNumber = index + 1;
+        const pagePath =
+          `papers/${paperId}/pages/${pageNumber}/${page.name.replace(/"/g, "")}`;
+
+        await putObject(paperId, pagePath, page.buffer, page.mime);
+        uploadedStoragePaths.push(pagePath);
+
+        await db.insert(paperPages).values({
+          paperId,
+          pageNumber,
+          fileName: page.name,
+          fileSize: page.size,
+          mimeType: page.mime,
+          storageBucket: STORAGE_BUCKET,
+          storagePath: pagePath,
+        });
+      }
+    } else {
+      await putObject(paperId, storagePath, primary.buffer, primary.mime);
+      uploadedStoragePaths.push(storagePath);
+    }
 
     await db
       .insert(auditLogs)
@@ -134,13 +224,20 @@ export async function POST(request: Request) {
         action: "paper.upload",
         targetType: "paper",
         targetId: paperId,
-        details: fileName,
+        details:
+          validatedFiles.length > 1
+            ? `${validatedFiles.length} pages: ${validatedFiles.map((file) => file.name).join(", ")}`
+            : primary.name,
       })
       .catch(() => undefined);
 
     return ok(
       {
-        paper: { ...paper, createdAt: paper.createdAt.toISOString(), updatedAt: paper.updatedAt.toISOString() },
+        paper: {
+          ...paper,
+          createdAt: paper.createdAt.toISOString(),
+          updatedAt: paper.updatedAt.toISOString(),
+        },
         message:
           paper.status === "APPROVED"
             ? "Thank you! Your paper is now in the library."
@@ -149,13 +246,32 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (error) {
-    // Roll back the metadata row if storage failed.
     if (paperId) {
+      for (const path of uploadedStoragePaths) {
+        await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL ?? ""}/storage/v1/object/${STORAGE_BUCKET}/${path}`,
+          {
+            method: "DELETE",
+            headers: {
+              apikey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
+              Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""}`,
+            },
+          },
+        ).catch(() => undefined);
+      }
+
+      await db
+        .delete(paperPages)
+        .where(sql`${paperPages.paperId} = ${paperId}`)
+        .catch(() => undefined);
+
       await db
         .delete(papers)
         .where(sql`${papers.id} = ${paperId}`)
         .catch(() => undefined);
     }
+
     return handleError(error);
   }
 }
+

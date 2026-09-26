@@ -146,6 +146,30 @@ export const fileBlobs = pgTable(
   (t) => [uniqueIndex("file_blobs_paper_id_key").on(t.paperId)],
 );
 
+/** Individual image pages belonging to a multi-image paper. */
+export const paperPages = pgTable(
+  "paper_pages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    paperId: uuid("paper_id")
+      .notNull()
+      .references(() => papers.id, { onDelete: "cascade" }),
+    pageNumber: integer("page_number").notNull(),
+    fileName: text("file_name").notNull(),
+    fileSize: bigint("file_size", { mode: "number" }).notNull(),
+    mimeType: text("mime_type").notNull(),
+    storageBucket: text("storage_bucket").notNull(),
+    storagePath: text("storage_path").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("paper_pages_paper_page_key").on(t.paperId, t.pageNumber),
+    index("paper_pages_paper_id_idx").on(t.paperId),
+  ],
+);
+
 /* ------------------------------------------------------------------ */
 /* Engagement                                                          */
 /* ------------------------------------------------------------------ */
@@ -251,6 +275,7 @@ export const auditLogs = pgTable(
 );
 
 export type Paper = typeof papers.$inferSelect;
+export type PaperPage = typeof paperPages.$inferSelect;
 export type Profile = typeof profiles.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
 export type Teacher = typeof teachers.$inferSelect;

@@ -372,7 +372,7 @@ export function Library({
 
 export function PaperRow({ paper }: { paper: PaperListItem }) {
   const [imageFailed, setImageFailed] = useState(false);
-  const isImage = ["jpg", "jpeg", "png", "webp"].includes(paper.fileExt);
+  const isImage = ["jpg", "jpeg", "png", "webp", "images"].includes(paper.fileExt);
   return (
     <article className="paper row-hover overflow-hidden">
       <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:gap-4 sm:p-5">

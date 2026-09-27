@@ -26,14 +26,23 @@ export default function HomePage() {
               Browse, view and download school examination papers — or share one with the next student.
             </p>
 
-            <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap">
-              <Link href="#library" className="btn btn-primary sm:min-w-[150px]">
+            <div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+              <Link
+                href="#library"
+                className="btn btn-primary col-span-2 !min-h-[42px] sm:col-span-1 sm:min-w-[150px]"
+              >
                 📚 Browse papers
               </Link>
-              <Link href="/upload" className="btn sm:min-w-[150px]">
+              <Link
+                href="/upload"
+                className="btn col-span-1 !min-h-[42px] sm:min-w-[150px]"
+              >
                 📤 Upload a paper
               </Link>
-              <Link href="/year-papers" className="btn btn-ghost sm:min-w-[120px]">
+              <Link
+                href="/year-papers"
+                className="btn btn-ghost col-span-1 !min-h-[42px] sm:min-w-[120px]"
+              >
                 Year papers
               </Link>
             </div>

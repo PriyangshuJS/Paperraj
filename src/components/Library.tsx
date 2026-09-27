@@ -122,41 +122,57 @@ export function Library({
         <label htmlFor="paperraj-search" className="label">
           Search the catalogue
         </label>
-        <div className="library-search-row flex items-stretch gap-2">
-          <div className="relative flex-1">
+        <div className="library-search-row grid grid-cols-[minmax(0,1fr)_auto] items-stretch gap-2">
+          <div className="relative min-w-0">
             <span
               aria-hidden
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3"
+              className="pointer-events-none absolute inset-y-0 left-0 flex w-11 items-center justify-center text-ink-3"
             >
-              🔍
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+              >
+                <circle cx="11" cy="11" r="6.5" />
+                <path d="m16 16 4.25 4.25" strokeLinecap="round" />
+              </svg>
             </span>
+
             <input
               id="paperraj-search"
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search by filename, subject, uploader..."
-              className="field !min-h-[50px] pl-10 text-[1rem]"
+              className="field !min-h-[50px] !pl-11 text-[1rem]"
               autoComplete="off"
             />
           </div>
+
           <button
             type="button"
-            className="btn !min-h-[50px] md:hidden"
+            className="btn !min-h-[50px] !px-3 sm:!px-4"
             aria-expanded={showFilters}
             onClick={() => setShowFilters((v) => !v)}
           >
-            Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
+            {showFilters ? "Hide filters" : "Filters"}
+            {activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
           </button>
         </div>
 
-        <div className="library-sort-row mt-3 flex flex-wrap items-center gap-2">
-          <label htmlFor="paperraj-sort" className="smallcaps text-[0.72rem] font-bold text-ink-3">
+        <div className="library-sort-row mt-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
+          <label
+            htmlFor="paperraj-sort"
+            className="smallcaps whitespace-nowrap text-[0.72rem] font-bold text-ink-3"
+          >
             Sort
           </label>
+
           <select
             id="paperraj-sort"
-            className="field !min-h-[42px] w-auto py-1"
+            className="field !min-h-[42px] min-w-0 py-1"
             value={sort}
             onChange={(e) => setSort(e.target.value)}
           >
@@ -166,25 +182,17 @@ export function Library({
               </option>
             ))}
           </select>
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm hidden md:inline-flex"
-            aria-expanded={showFilters}
-            onClick={() => setShowFilters((v) => !v)}
-          >
-            {showFilters ? "Hide filters" : "Show filters"}
-            {activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
-          </button>
+
           {activeFilterCount > 0 && (
             <button
               type="button"
-              className="btn btn-ghost btn-sm"
+              className="btn btn-ghost btn-sm whitespace-nowrap"
               onClick={() => {
                 setFilters({});
                 setQuery("");
               }}
             >
-              Clear all
+              Clear filters
             </button>
           )}
         </div>

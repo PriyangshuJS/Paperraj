@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { NAV_LINKS, SITE } from "@/lib/site";
 import { useSession, type SessionUser } from "@/lib/useSession";
+import { Logo } from "@/components/Logo";
 
 const PRIMARY = NAV_LINKS.slice(0, 5);
 
@@ -43,8 +44,14 @@ export function SiteHeader() {
             className="flex min-w-0 shrink-0 items-center rounded-sm"
             aria-label="PaperRaj home"
           >
-            <span className="font-display text-[1.45rem] font-semibold tracking-[-0.02em] text-ink sm:text-[1.7rem]">
-              Paper<span className="text-wood-2">Raj</span>
+            <span className="flex items-center gap-2">
+              <Logo
+                size={28}
+                className="shrink-0 drop-shadow-[0_1px_3px_rgba(60,42,24,0.3)]"
+              />
+              <span className="font-display text-[1.45rem] font-semibold tracking-[-0.02em] text-ink sm:text-[1.7rem]">
+                Paper<span className="text-wood-2">Raj</span>
+              </span>
             </span>
           </Link>
 
